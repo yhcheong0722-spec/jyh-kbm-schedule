@@ -773,7 +773,7 @@
                         <textarea id="scheduleDescription" placeholder="추가 설명"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">✅ 일정 추가</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">✅ 일정 추가</button>
                 </div>
             </form>
         </div>
@@ -1030,7 +1030,10 @@
                                 </div>
                                 ${attendeesDisplay ? `<div style="margin-top: 8px;"><span style="font-size: 0.85em; color: #6c757d; margin-right: 5px;">참석:</span>${attendeesDisplay}</div>` : ''}
                             </div>
-                            <button class="btn btn-danger" onclick="deleteSchedule(${schedule.id})">삭제</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-secondary" style="padding: 10px 16px; font-size: 0.9em; width: auto; min-width: 60px;" onclick="editSchedule(${schedule.id})">수정</button>
+                                <button class="btn btn-danger" onclick="deleteSchedule(${schedule.id})">삭제</button>
+                            </div>
                         </div>
                         ${schedule.description ? `<div class="schedule-description">${schedule.description}</div>` : ''}
                     </div>
@@ -1193,6 +1196,10 @@
                             <div>👥 참석: ${attendeesText}</div>
                             ${schedule.description ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">📝 ${schedule.description}</div>` : ''}
                         </div>
+                        <div style="display: flex; gap: 8px; margin-top: 12px;">
+                            <button class="btn btn-secondary" style="flex: 1;" onclick="closeModal(); editSchedule(${schedule.id});">수정</button>
+                            <button class="btn btn-danger" style="flex: 1;" onclick="closeModal(); deleteSchedule(${schedule.id});">삭제</button>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1204,6 +1211,35 @@
             if (!event || event.target.id === 'scheduleModal') {
                 document.getElementById('scheduleModal').style.display = 'none';
             }
+        }
+
+        function editSchedule(id) {
+            const schedule = schedules.find(s => s.id === id);
+            if (!schedule) return;
+            
+            // 폼에 기존 데이터 채우기
+            document.getElementById('memberName').value = schedule.member;
+            document.getElementById('scheduleDate').value = schedule.date;
+            document.getElementById('scheduleTime').value = schedule.time;
+            document.getElementById('scheduleCategory').value = schedule.category;
+            document.getElementById('scheduleTitle').value = schedule.title;
+            document.getElementById('scheduleDescription').value = schedule.description || '';
+            
+            // 참석자 체크
+            document.getElementById('attendee1').checked = schedule.attendees && schedule.attendees.includes('정영훈');
+            document.getElementById('attendee2').checked = schedule.attendees && schedule.attendees.includes('김보민');
+            
+            // 기존 일정 삭제
+            schedules = schedules.filter(s => s.id !== id);
+            saveSchedules();
+            renderSchedules();
+            renderCalendar();
+            updateStats();
+            
+            // 페이지 상단으로 스크롤
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            alert('📝 수정할 내용을 변경하고 "일정 추가" 버튼을 눌러주세요.');
         }
 
         function deleteSchedule(id) {
