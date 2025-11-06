@@ -44,6 +44,38 @@
             opacity: 0.9;
         }
 
+        .view-toggle {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .view-btn {
+            padding: 12px 30px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #667eea;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
         .controls {
             padding: 30px;
             background: #f8f9fa;
@@ -133,6 +165,7 @@
             background: #c82333;
         }
 
+        /* 리스트 뷰 스타일 */
         .schedule-container {
             padding: 30px;
         }
@@ -192,26 +225,6 @@
             margin-bottom: 10px;
         }
 
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.95em;
-            color: #6c757d;
-        }
-
-        .meta-icon {
-            font-weight: bold;
-        }
-
-        .schedule-description {
-            color: #495057;
-            line-height: 1.6;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #e9ecef;
-        }
-
         .member-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -240,6 +253,180 @@
             border-radius: 20px;
             font-size: 0.85em;
             font-weight: 600;
+        }
+
+        .schedule-description {
+            color: #495057;
+            line-height: 1.6;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .priority-high {
+            border-left: 4px solid #dc3545;
+        }
+
+        .priority-medium {
+            border-left: 4px solid #ffc107;
+        }
+
+        .priority-low {
+            border-left: 4px solid #28a745;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .priority-high-badge {
+            background: #dc3545;
+            color: white;
+        }
+
+        .priority-medium-badge {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .priority-low-badge {
+            background: #28a745;
+            color: white;
+        }
+
+        /* 달력 뷰 스타일 */
+        .calendar-container {
+            padding: 30px;
+            display: none;
+        }
+
+        .calendar-container.active {
+            display: block;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .calendar-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .calendar-day.other-month {
+            background: #f8f9fa;
+            opacity: 0.5;
+        }
+
+        .calendar-day.today {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .calendar-day-number {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .calendar-day.today .calendar-day-number {
+            color: #ffc107;
+            font-size: 1.2em;
+        }
+
+        .calendar-event {
+            font-size: 0.85em;
+            padding: 4px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-event:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .calendar-event.priority-high {
+            background: #dc3545;
+        }
+
+        .calendar-event.priority-medium {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .calendar-event.priority-low {
+            background: #28a745;
         }
 
         .empty-state {
@@ -336,40 +523,25 @@
             .stats {
                 flex-direction: column;
             }
-        }
 
-        .priority-high {
-            border-left: 4px solid #dc3545;
-        }
+            .calendar-grid {
+                gap: 5px;
+            }
 
-        .priority-medium {
-            border-left: 4px solid #ffc107;
-        }
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+            }
 
-        .priority-low {
-            border-left: 4px solid #28a745;
-        }
+            .calendar-day-header {
+                padding: 10px 5px;
+                font-size: 0.9em;
+            }
 
-        .priority-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .priority-high-badge {
-            background: #dc3545;
-            color: white;
-        }
-
-        .priority-medium-badge {
-            background: #ffc107;
-            color: #333;
-        }
-
-        .priority-low-badge {
-            background: #28a745;
-            color: white;
+            .calendar-event {
+                font-size: 0.75em;
+                padding: 2px 4px;
+            }
         }
     </style>
 </head>
@@ -378,6 +550,11 @@
         <div class="header">
             <h1>📅 팀 스케줄 관리</h1>
             <p>팀원들의 일정을 등록하고 공유하세요</p>
+        </div>
+
+        <div class="view-toggle">
+            <button class="view-btn active" onclick="showListView()">📋 리스트 보기</button>
+            <button class="view-btn" onclick="showCalendarView()">📅 달력 보기</button>
         </div>
 
         <div class="controls">
@@ -420,7 +597,8 @@
             </form>
         </div>
 
-        <div class="schedule-container">
+        <!-- 리스트 뷰 -->
+        <div id="listView" class="schedule-container">
             <div class="filter-section">
                 <label style="font-weight: 600; color: #495057;">필터:</label>
                 <select id="memberFilter">
@@ -442,6 +620,19 @@
             </div>
 
             <div id="scheduleList" class="schedule-grid"></div>
+        </div>
+
+        <!-- 달력 뷰 -->
+        <div id="calendarView" class="calendar-container">
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <button onclick="previousMonth()">◀ 이전</button>
+                    <button onclick="goToToday()">오늘</button>
+                    <button onclick="nextMonth()">다음 ▶</button>
+                </div>
+                <div class="calendar-title" id="calendarTitle"></div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
         </div>
 
         <div class="stats">
@@ -474,6 +665,8 @@
 
     <script>
         let schedules = [];
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
 
         // 페이지 로드 시 저장된 데이터 불러오기
         window.onload = function() {
@@ -481,6 +674,7 @@
             setDefaultDate();
             renderSchedules();
             updateStats();
+            renderCalendar();
         };
 
         // 기본 날짜를 오늘로 설정
@@ -507,6 +701,7 @@
             schedules.push(schedule);
             saveSchedules();
             renderSchedules();
+            renderCalendar();
             updateStats();
             updateMemberFilter();
             
@@ -531,7 +726,24 @@
             }
         }
 
-        // 일정 렌더링
+        // 리스트 뷰 보기
+        function showListView() {
+            document.getElementById('listView').style.display = 'block';
+            document.getElementById('calendarView').classList.remove('active');
+            document.querySelectorAll('.view-btn')[0].classList.add('active');
+            document.querySelectorAll('.view-btn')[1].classList.remove('active');
+        }
+
+        // 달력 뷰 보기
+        function showCalendarView() {
+            document.getElementById('listView').style.display = 'none';
+            document.getElementById('calendarView').classList.add('active');
+            document.querySelectorAll('.view-btn')[0].classList.remove('active');
+            document.querySelectorAll('.view-btn')[1].classList.add('active');
+            renderCalendar();
+        }
+
+        // 리스트 렌더링
         function renderSchedules() {
             const container = document.getElementById('scheduleList');
             const memberFilter = document.getElementById('memberFilter').value;
@@ -541,12 +753,10 @@
             let filtered = schedules.filter(schedule => {
                 let matches = true;
                 
-                // 담당자 필터
                 if (memberFilter !== 'all' && schedule.member !== memberFilter) {
                     matches = false;
                 }
                 
-                // 날짜 필터
                 if (dateFilter !== 'all') {
                     const scheduleDate = new Date(schedule.date);
                     const today = new Date();
@@ -564,7 +774,6 @@
                     }
                 }
                 
-                // 우선순위 필터
                 if (priorityFilter !== 'all' && schedule.priority !== priorityFilter) {
                     matches = false;
                 }
@@ -572,7 +781,6 @@
                 return matches;
             });
             
-            // 날짜와 시간순으로 정렬
             filtered.sort((a, b) => {
                 const dateCompare = a.date.localeCompare(b.date);
                 if (dateCompare !== 0) return dateCompare;
@@ -626,12 +834,136 @@
             }).join('');
         }
 
+        // 달력 렌더링
+        function renderCalendar() {
+            const calendarTitle = document.getElementById('calendarTitle');
+            const calendarGrid = document.getElementById('calendarGrid');
+            
+            calendarTitle.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+            
+            // 달력 헤더 (요일)
+            const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+            let calendarHTML = weekdays.map(day => 
+                `<div class="calendar-day-header">${day}</div>`
+            ).join('');
+            
+            // 이번 달의 첫 날과 마지막 날
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const prevLastDay = new Date(currentYear, currentMonth, 0);
+            
+            const firstDayOfWeek = firstDay.getDay();
+            const lastDate = lastDay.getDate();
+            const prevLastDate = prevLastDay.getDate();
+            
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            // 이전 달 날짜들
+            for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+                const date = prevLastDate - i;
+                calendarHTML += `
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">${date}</div>
+                    </div>
+                `;
+            }
+            
+            // 이번 달 날짜들
+            for (let date = 1; date <= lastDate; date++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                const isToday = dateStr === todayStr;
+                const daySchedules = schedules.filter(s => s.date === dateStr);
+                
+                calendarHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''}" onclick="showDaySchedules('${dateStr}')">
+                        <div class="calendar-day-number">${date}</div>
+                        ${daySchedules.map(schedule => `
+                            <div class="calendar-event priority-${schedule.priority}" title="${schedule.title} - ${schedule.time} (${schedule.member})">
+                                ${schedule.time} ${schedule.title}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            // 다음 달 날짜들
+            const remainingDays = 42 - (firstDayOfWeek + lastDate); // 6주 * 7일 = 42
+            for (let date = 1; date <= remainingDays; date++) {
+                calendarHTML += `
+                    <div class="calendar-day other-month">
+                        <div class="calendar-day-number">${date}</div>
+                    </div>
+                `;
+            }
+            
+            calendarGrid.innerHTML = calendarHTML;
+        }
+
+        // 이전 달
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        // 다음 달
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        // 오늘로 이동
+        function goToToday() {
+            const today = new Date();
+            currentYear = today.getFullYear();
+            currentMonth = today.getMonth();
+            renderCalendar();
+        }
+
+        // 특정 날짜의 일정 보기
+        function showDaySchedules(dateStr) {
+            const daySchedules = schedules.filter(s => s.date === dateStr);
+            
+            if (daySchedules.length === 0) {
+                alert('이 날짜에는 일정이 없습니다.');
+                return;
+            }
+            
+            const formattedDate = new Date(dateStr).toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            
+            let message = `📅 ${formattedDate}\n\n`;
+            daySchedules.forEach((schedule, index) => {
+                message += `${index + 1}. ${schedule.time} - ${schedule.title}\n`;
+                message += `   담당자: ${schedule.member}\n`;
+                if (schedule.description) {
+                    message += `   상세: ${schedule.description}\n`;
+                }
+                message += '\n';
+            });
+            
+            alert(message);
+        }
+
         // 일정 삭제
         function deleteSchedule(id) {
             if (confirm('이 일정을 삭제하시겠습니까?')) {
                 schedules = schedules.filter(s => s.id !== id);
                 saveSchedules();
                 renderSchedules();
+                renderCalendar();
                 updateStats();
                 updateMemberFilter();
             }
@@ -702,6 +1034,7 @@
                         schedules = [...schedules, ...imported];
                         saveSchedules();
                         renderSchedules();
+                        renderCalendar();
                         updateStats();
                         updateMemberFilter();
                         alert('데이터를 성공적으로 불러왔습니다! 📤');
