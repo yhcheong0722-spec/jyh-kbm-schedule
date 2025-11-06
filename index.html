@@ -294,18 +294,6 @@
             word-wrap: break-word;
         }
 
-        .priority-high {
-            border-left: 4px solid #dc3545;
-        }
-
-        .priority-medium {
-            border-left: 4px solid #ffc107;
-        }
-
-        .priority-low {
-            border-left: 4px solid #28a745;
-        }
-
         /* 달력 뷰 스타일 - 모바일 최적화 */
         .calendar-container {
             padding: 15px;
@@ -730,11 +718,29 @@
                     <div class="input-row">
                         <div class="input-group">
                             <label for="memberName">담당자</label>
-                            <input type="text" id="memberName" placeholder="이름" required>
+                            <select id="memberName" required>
+                                <option value="">선택하세요</option>
+                                <option value="정영훈">정영훈</option>
+                                <option value="김보민">김보민</option>
+                            </select>
                         </div>
                         <div class="input-group">
                             <label for="scheduleDate">날짜</label>
                             <input type="date" id="scheduleDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group full-width">
+                        <label>참석자</label>
+                        <div style="display: flex; gap: 20px; padding: 10px 0;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" id="attendee1" value="정영훈" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span>정영훈</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                                <input type="checkbox" id="attendee2" value="김보민" style="width: 18px; height: 18px; cursor: pointer;">
+                                <span>김보민</span>
+                            </label>
                         </div>
                     </div>
                     
@@ -744,18 +750,22 @@
                             <input type="time" id="scheduleTime" required>
                         </div>
                         <div class="input-group">
-                            <label for="schedulePriority">우선순위</label>
-                            <select id="schedulePriority">
-                                <option value="low">낮음</option>
-                                <option value="medium" selected>보통</option>
-                                <option value="high">높음</option>
+                            <label for="scheduleCategory">카테고리</label>
+                            <select id="scheduleCategory" required>
+                                <option value="">선택하세요</option>
+                                <option value="행사">행사</option>
+                                <option value="회의">회의</option>
+                                <option value="출장">출장</option>
+                                <option value="대외활동">대외활동</option>
+                                <option value="휴가">휴가</option>
+                                <option value="식사">식사</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="input-group full-width">
                         <label for="scheduleTitle">일정 제목</label>
-                        <input type="text" id="scheduleTitle" placeholder="예: 고객 미팅" required>
+                        <input type="text" id="scheduleTitle" placeholder="예: 고객사 미팅" required>
                     </div>
 
                     <div class="input-group full-width">
@@ -775,19 +785,22 @@
                     <select id="memberFilter">
                         <option value="all">전체 담당자</option>
                     </select>
+                    <select id="categoryFilter">
+                        <option value="all">전체 카테고리</option>
+                        <option value="행사">행사</option>
+                        <option value="회의">회의</option>
+                        <option value="출장">출장</option>
+                        <option value="대외활동">대외활동</option>
+                        <option value="휴가">휴가</option>
+                        <option value="식사">식사</option>
+                    </select>
+                </div>
+                <div class="filter-row">
                     <select id="dateFilter">
                         <option value="all">전체 기간</option>
                         <option value="today">오늘</option>
                         <option value="week">이번 주</option>
                         <option value="month">이번 달</option>
-                    </select>
-                </div>
-                <div class="filter-row">
-                    <select id="priorityFilter">
-                        <option value="all">전체 우선순위</option>
-                        <option value="high">높음</option>
-                        <option value="medium">보통</option>
-                        <option value="low">낮음</option>
                     </select>
                     <button class="btn btn-secondary" onclick="clearFilters()">초기화</button>
                 </div>
@@ -869,13 +882,23 @@
         document.getElementById('scheduleForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // 참석자 수집
+            const attendees = [];
+            if (document.getElementById('attendee1').checked) {
+                attendees.push('정영훈');
+            }
+            if (document.getElementById('attendee2').checked) {
+                attendees.push('김보민');
+            }
+            
             const schedule = {
                 id: Date.now(),
-                member: document.getElementById('memberName').value.trim(),
+                member: document.getElementById('memberName').value,
+                attendees: attendees,
                 date: document.getElementById('scheduleDate').value,
                 time: document.getElementById('scheduleTime').value,
+                category: document.getElementById('scheduleCategory').value,
                 title: document.getElementById('scheduleTitle').value.trim(),
-                priority: document.getElementById('schedulePriority').value,
                 description: document.getElementById('scheduleDescription').value.trim(),
                 createdAt: new Date().toISOString()
             };
@@ -923,7 +946,7 @@
             const container = document.getElementById('scheduleList');
             const memberFilter = document.getElementById('memberFilter').value;
             const dateFilter = document.getElementById('dateFilter').value;
-            const priorityFilter = document.getElementById('priorityFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
             
             let filtered = schedules.filter(schedule => {
                 let matches = true;
@@ -949,7 +972,7 @@
                     }
                 }
                 
-                if (priorityFilter !== 'all' && schedule.priority !== priorityFilter) {
+                if (categoryFilter !== 'all' && schedule.category !== categoryFilter) {
                     matches = false;
                 }
                 
@@ -973,29 +996,39 @@
                 return;
             }
             
+            // 카테고리별 색상 및 이모지
+            const categoryStyles = {
+                '행사': { color: '#e74c3c', emoji: '🎉' },
+                '회의': { color: '#3498db', emoji: '💼' },
+                '출장': { color: '#9b59b6', emoji: '✈️' },
+                '대외활동': { color: '#1abc9c', emoji: '🤝' },
+                '휴가': { color: '#f39c12', emoji: '🏖️' },
+                '식사': { color: '#27ae60', emoji: '🍽️' }
+            };
+            
             container.innerHTML = filtered.map(schedule => {
-                const priorityClass = `priority-${schedule.priority}`;
-                const priorityBadgeClass = `priority-${schedule.priority}-badge`;
-                const priorityText = {
-                    high: '높음',
-                    medium: '보통',
-                    low: '낮음'
-                }[schedule.priority];
-                
                 const date = new Date(schedule.date);
                 const formattedDate = `${date.getMonth() + 1}/${date.getDate()} (${['일','월','화','수','목','금','토'][date.getDay()]})`;
                 
+                const categoryInfo = categoryStyles[schedule.category] || { color: '#95a5a6', emoji: '📌' };
+                
+                // 참석자 표시
+                const attendeesDisplay = schedule.attendees && schedule.attendees.length > 0 
+                    ? schedule.attendees.map(a => `<span class="badge member-badge">${a}</span>`).join(' ')
+                    : '';
+                
                 return `
-                    <div class="schedule-card ${priorityClass}">
+                    <div class="schedule-card" style="border-left: 4px solid ${categoryInfo.color};">
                         <div class="schedule-header">
                             <div class="schedule-info">
-                                <h3>${schedule.title}</h3>
+                                <h3>${categoryInfo.emoji} ${schedule.title}</h3>
                                 <div class="schedule-meta">
-                                    <span class="badge member-badge">${schedule.member}</span>
+                                    <span class="badge" style="background: ${categoryInfo.color}; color: white;">${schedule.category}</span>
+                                    <span class="badge" style="background: #6c757d; color: white;">담당: ${schedule.member}</span>
                                     <span class="badge date-badge">${formattedDate}</span>
                                     <span class="badge time-badge">${schedule.time}</span>
-                                    <span class="badge priority-badge ${priorityBadgeClass}">${priorityText}</span>
                                 </div>
+                                ${attendeesDisplay ? `<div style="margin-top: 8px;"><span style="font-size: 0.85em; color: #6c757d; margin-right: 5px;">참석:</span>${attendeesDisplay}</div>` : ''}
                             </div>
                             <button class="btn btn-danger" onclick="deleteSchedule(${schedule.id})">삭제</button>
                         </div>
@@ -1027,6 +1060,16 @@
             const today = new Date();
             const todayStr = today.toISOString().split('T')[0];
             
+            // 카테고리별 색상
+            const categoryColors = {
+                '행사': '#e74c3c',
+                '회의': '#3498db',
+                '출장': '#9b59b6',
+                '대외활동': '#1abc9c',
+                '휴가': '#f39c12',
+                '식사': '#27ae60'
+            };
+            
             // 이전 달
             for (let i = firstDayOfWeek - 1; i >= 0; i--) {
                 const date = prevLastDate - i;
@@ -1050,11 +1093,12 @@
                 calendarHTML += `
                     <div class="calendar-day ${isToday ? 'today' : ''}" onclick="showDaySchedules('${dateStr}')">
                         <div class="calendar-day-number">${date}</div>
-                        ${displaySchedules.map(schedule => `
-                            <div class="calendar-event priority-${schedule.priority}">
+                        ${displaySchedules.map(schedule => {
+                            const color = categoryColors[schedule.category] || '#95a5a6';
+                            return `<div class="calendar-event" style="background: ${color}; color: white;">
                                 ${schedule.time} ${schedule.title}
-                            </div>
-                        `).join('')}
+                            </div>`;
+                        }).join('')}
                         ${remaining > 0 ? `<div class="event-count">+${remaining}개</div>` : ''}
                     </div>
                 `;
@@ -1112,22 +1156,41 @@
             
             document.getElementById('modalTitle').textContent = formattedDate;
             
+            const categoryEmojis = {
+                '행사': '🎉',
+                '회의': '💼',
+                '출장': '✈️',
+                '대외활동': '🤝',
+                '휴가': '🏖️',
+                '식사': '🍽️'
+            };
+            
+            const categoryColors = {
+                '행사': '#e74c3c',
+                '회의': '#3498db',
+                '출장': '#9b59b6',
+                '대외활동': '#1abc9c',
+                '휴가': '#f39c12',
+                '식사': '#27ae60'
+            };
+            
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = daySchedules.map(schedule => {
-                const priorityText = {
-                    high: '높음',
-                    medium: '보통',
-                    low: '낮음'
-                }[schedule.priority];
-                const priorityBadgeClass = `priority-${schedule.priority}-badge`;
+                const attendeesText = schedule.attendees && schedule.attendees.length > 0
+                    ? schedule.attendees.join(', ')
+                    : '없음';
+                
+                const emoji = categoryEmojis[schedule.category] || '📌';
+                const color = categoryColors[schedule.category] || '#95a5a6';
                 
                 return `
                     <div class="modal-schedule">
-                        <div class="modal-schedule-title">${schedule.title}</div>
+                        <div class="modal-schedule-title">${emoji} ${schedule.title}</div>
                         <div class="modal-schedule-info">
                             <div>⏰ ${schedule.time}</div>
-                            <div>👤 ${schedule.member}</div>
-                            <div>⚡ <span class="badge priority-badge ${priorityBadgeClass}">${priorityText}</span></div>
+                            <div><span class="badge" style="background: ${color}; color: white; padding: 4px 10px; border-radius: 15px;">${schedule.category}</span></div>
+                            <div>📋 담당: ${schedule.member}</div>
+                            <div>👥 참석: ${attendeesText}</div>
                             ${schedule.description ? `<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">📝 ${schedule.description}</div>` : ''}
                         </div>
                     </div>
@@ -1168,24 +1231,27 @@
         function updateMemberFilter() {
             const memberFilter = document.getElementById('memberFilter');
             const currentValue = memberFilter.value;
-            const members = [...new Set(schedules.map(s => s.member))].sort();
             
-            memberFilter.innerHTML = '<option value="all">전체 담당자</option>' +
-                members.map(m => `<option value="${m}">${m}</option>`).join('');
+            // 고정된 담당자 목록
+            memberFilter.innerHTML = `
+                <option value="all">전체 담당자</option>
+                <option value="정영훈">정영훈</option>
+                <option value="김보민">김보민</option>
+            `;
             
-            if (members.includes(currentValue)) {
+            if (currentValue === '정영훈' || currentValue === '김보민' || currentValue === 'all') {
                 memberFilter.value = currentValue;
             }
         }
 
         document.getElementById('memberFilter').addEventListener('change', renderSchedules);
         document.getElementById('dateFilter').addEventListener('change', renderSchedules);
-        document.getElementById('priorityFilter').addEventListener('change', renderSchedules);
+        document.getElementById('categoryFilter').addEventListener('change', renderSchedules);
 
         function clearFilters() {
             document.getElementById('memberFilter').value = 'all';
             document.getElementById('dateFilter').value = 'all';
-            document.getElementById('priorityFilter').value = 'all';
+            document.getElementById('categoryFilter').value = 'all';
             renderSchedules();
         }
 
