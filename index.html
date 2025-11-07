@@ -32,11 +32,38 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
             font-size: 2em;
             margin-bottom: 10px;
+        }
+
+        .sync-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .sync-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .controls {
@@ -428,6 +455,13 @@
             background: #c82333;
         }
 
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 0;
@@ -443,6 +477,12 @@
 
             .header h1 {
                 font-size: 1.3em;
+            }
+
+            .sync-status {
+                position: static;
+                display: inline-flex;
+                margin-top: 10px;
             }
 
             .controls {
@@ -586,6 +626,10 @@
     <div class="container">
         <div class="header">
             <h1>🗓️ KTL 기계소재기술센터 일정표</h1>
+            <div class="sync-status">
+                <div class="sync-indicator"></div>
+                <span>실시간 동기화</span>
+            </div>
         </div>
 
         <div class="controls">
@@ -607,7 +651,9 @@
                 <div class="weekday">금</div>
                 <div class="weekday saturday">토</div>
             </div>
-            <div class="days" id="calendar"></div>
+            <div class="days" id="calendar">
+                <div class="loading">데이터를 불러오는 중...</div>
+            </div>
         </div>
     </div>
 
@@ -712,7 +758,27 @@
         </div>
     </div>
 
-    <script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // ⚠️ 여기에 Firebase 설정을 입력하세요
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const schedulesRef = ref(database, 'schedules');
+
         let currentDate = new Date();
         let schedules = [];
         let editingScheduleId = null;
@@ -728,13 +794,12 @@
                 endHour.innerHTML += `<option value="${hour}">${hour}</option>`;
             }
             
-            // 기본값 설정
             startHour.value = '09';
             endHour.value = '18';
         }
 
         // 종일 체크박스 토글
-        function toggleTimeInputs() {
+        window.toggleTimeInputs = function() {
             const allDay = document.getElementById('allDay').checked;
             const timeInputs = document.getElementById('timeInputs');
             timeInputs.style.display = allDay ? 'none' : 'grid';
@@ -758,18 +823,19 @@
             document.getElementById('attendee2').checked = attendees.includes('김보민');
         }
 
-        // localStorage에서 일정 로드
-        function loadSchedules() {
-            const saved = localStorage.getItem('ktl_schedules');
-            if (saved) {
-                schedules = JSON.parse(saved);
+        // Firebase에서 실시간으로 일정 로드
+        onValue(schedulesRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                schedules = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                }));
+            } else {
+                schedules = [];
             }
-        }
-
-        // localStorage에 일정 저장
-        function saveSchedules() {
-            localStorage.setItem('ktl_schedules', JSON.stringify(schedules));
-        }
+            renderCalendar();
+        });
 
         // 달력 렌더링
         function renderCalendar() {
@@ -881,20 +947,19 @@
         }
 
         // 월 변경
-        function changeMonth(delta) {
+        window.changeMonth = function(delta) {
             currentDate.setMonth(currentDate.getMonth() + delta);
             renderCalendar();
         }
 
         // 일정 추가 모달 열기
-        function openAddModal(dateStr = null) {
+        window.openAddModal = function(dateStr = null) {
             editingScheduleId = null;
             document.getElementById('modalTitle').textContent = '일정 추가';
             document.getElementById('scheduleForm').reset();
             document.getElementById('scheduleId').value = '';
             document.getElementById('deleteBtn').style.display = 'none';
             
-            // 참석자 체크박스 초기화
             document.getElementById('attendee1').checked = false;
             document.getElementById('attendee2').checked = false;
             
@@ -923,7 +988,6 @@
             document.getElementById('scheduleMemo').value = schedule.memo || '';
             document.getElementById('allDay').checked = schedule.allDay || false;
             
-            // 참석자 체크박스 설정
             if (schedule.attendees && schedule.attendees.length > 0) {
                 setAttendees(schedule.attendees);
             } else {
@@ -945,14 +1009,16 @@
             document.getElementById('scheduleModal').style.display = 'block';
         }
 
+        window.openEditModal = openEditModal;
+
         // 모달 닫기
-        function closeModal() {
+        window.closeModal = function() {
             document.getElementById('scheduleModal').style.display = 'none';
             editingScheduleId = null;
         }
 
-        // 일정 저장
-        document.getElementById('scheduleForm').onsubmit = function(e) {
+        // 일정 저장 (Firebase)
+        document.getElementById('scheduleForm').onsubmit = async function(e) {
             e.preventDefault();
             
             const allDay = document.getElementById('allDay').checked;
@@ -968,8 +1034,8 @@
                 endTime = `${endH}:${endM}`;
             }
 
+            const scheduleId = editingScheduleId || Date.now().toString();
             const schedule = {
-                id: editingScheduleId || Date.now().toString(),
                 date: document.getElementById('scheduleDate').value,
                 person: document.getElementById('schedulePerson').value,
                 attendees: getAttendees(),
@@ -981,31 +1047,27 @@
                 memo: document.getElementById('scheduleMemo').value
             };
 
-            if (editingScheduleId) {
-                // 기존 일정 수정
-                const index = schedules.findIndex(s => s.id === editingScheduleId);
-                if (index !== -1) {
-                    schedules[index] = schedule;
-                }
-            } else {
-                // 새 일정 추가
-                schedules.push(schedule);
+            try {
+                await set(ref(database, 'schedules/' + scheduleId), schedule);
+                closeModal();
+            } catch (error) {
+                console.error('저장 실패:', error);
+                alert('일정 저장에 실패했습니다. 다시 시도해주세요.');
             }
-
-            saveSchedules();
-            renderCalendar();
-            closeModal();
         };
 
-        // 일정 삭제
-        function deleteSchedule() {
+        // 일정 삭제 (Firebase)
+        window.deleteSchedule = async function() {
             if (!editingScheduleId) return;
             
             if (confirm('이 일정을 삭제하시겠습니까?')) {
-                schedules = schedules.filter(s => s.id !== editingScheduleId);
-                saveSchedules();
-                renderCalendar();
-                closeModal();
+                try {
+                    await remove(ref(database, 'schedules/' + editingScheduleId));
+                    closeModal();
+                } catch (error) {
+                    console.error('삭제 실패:', error);
+                    alert('일정 삭제에 실패했습니다. 다시 시도해주세요.');
+                }
             }
         }
 
@@ -1019,8 +1081,6 @@
 
         // 초기화
         initializeTimeSelects();
-        loadSchedules();
-        renderCalendar();
     </script>
 </body>
 </html>
